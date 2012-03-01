@@ -27,7 +27,6 @@ void sig_segv() {
 }
 
 int cryptosystem_init(cryptosystem_t cs, size_t order, size_t dimensions) {
-
   int i;
   mpz_t p, q, r, s, n; // n == p * q * r * s
   mpz_t pq, rs;
@@ -57,23 +56,23 @@ int cryptosystem_init(cryptosystem_t cs, size_t order, size_t dimensions) {
   mpz_init(prq);
   done();
 
-  cs[0].order = order;
-  cs[0].dimensions = dimensions;
-  //cs[0].tag_Gs = ...;
+  cs->order = order;
+  cs->dimensions = dimensions;
+  //cs->tag_Gs = ...;
 
   fprintf(stderr, "- Picking random primes (this may take a while):");
   fprintf(stderr, "1 ");
   fflush(NULL);
-  random_prime(p, cs[0].order);
+  random_prime(p, cs->order);
   fprintf(stderr, "2 ");
   fflush(NULL);
-  random_prime(q, cs[0].order);
+  random_prime(q, cs->order);
   fprintf(stderr, "3 ");
   fflush(NULL);
-  random_prime(r, cs[0].order);
+  random_prime(r, cs->order);
   fprintf(stderr, "4 ");
   fflush(NULL);
-  random_prime(s, cs[0].order);
+  random_prime(s, cs->order);
   done();
 
   fprintf(stderr, "- Computing pairing function (this will take even longer):");
@@ -81,96 +80,96 @@ int cryptosystem_init(cryptosystem_t cs, size_t order, size_t dimensions) {
   mpz_mul(pq, p, q);
   mpz_mul(rs, r, s);
   mpz_mul(n, pq, rs);
-  pbc_param_init_a1_gen(cs[0].param, n);
-  pairing_init_pbc_param(cs[0].pairing, cs[0].param);
+  pbc_param_init_a1_gen(cs->param, n);
+  pairing_init_pbc_param(cs->pairing, cs->param);
   done();
 
   fprintf(stderr, "- Picking prime subgroup generators:");
   fflush(NULL);
-  element_init_G1(cs[0].g_Gp, cs[0].pairing);
-  element_init_G1(cs[0].g_Gq, cs[0].pairing);
-  element_init_G1(cs[0].g_Gr, cs[0].pairing);
-  element_init_G1(cs[0].g_Gs, cs[0].pairing);
-  element_random(cs[0].g_Gp);
-  element_random(cs[0].g_Gq);
-  element_random(cs[0].g_Gr);
-  element_random(cs[0].g_Gs);
+  element_init_G1(cs->g_Gp, cs->pairing);
+  element_init_G1(cs->g_Gq, cs->pairing);
+  element_init_G1(cs->g_Gr, cs->pairing);
+  element_init_G1(cs->g_Gs, cs->pairing);
+  element_random(cs->g_Gp);
+  element_random(cs->g_Gq);
+  element_random(cs->g_Gr);
+  element_random(cs->g_Gs);
   mpz_mul(qrs, q, rs);
   mpz_mul(pqs, pq, s);
   mpz_mul(prs, p, rs);
   mpz_mul(prq, pq, r);
-  element_pow_mpz(cs[0].g_Gp, cs[0].g_Gp, qrs);
-  element_pow_mpz(cs[0].g_Gr, cs[0].g_Gr, pqs);
-  element_pow_mpz(cs[0].g_Gq, cs[0].g_Gq, prs);
-  element_pow_mpz(cs[0].g_Gs, cs[0].g_Gs, prq);
+  element_pow_mpz(cs->g_Gp, cs->g_Gp, qrs);
+  element_pow_mpz(cs->g_Gr, cs->g_Gr, pqs);
+  element_pow_mpz(cs->g_Gq, cs->g_Gq, prs);
+  element_pow_mpz(cs->g_Gs, cs->g_Gs, prq);
   done();
 
-  cs[0].hs = malloc(cs[0].dimensions * 2 * sizeof(element_t));
-  cs[0].us = malloc(cs[0].dimensions * 2 * sizeof(element_t));
+  cs->hs = malloc(cs->dimensions * 2 * sizeof(element_t));
+  cs->us = malloc(cs->dimensions * 2 * sizeof(element_t));
 
-  element_init_Zr(power, cs[0].pairing);
+  element_init_Zr(power, cs->pairing);
 
   fprintf(stderr, "- Picking per-dimension elements (this will take a very long time):\n");
   fflush(NULL);
-  for (i = 0; i < cs[0].dimensions * 2; i += 2) {
+  for (i = 0; i < cs->dimensions * 2; i += 2) {
     fprintf(stderr, ".");
     fflush(NULL);
-    element_init_G1(cs[0].hs[i], cs[0].pairing);
-    element_set(cs[0].hs[i], cs[0].g_Gp);
+    element_init_G1(cs->hs[i], cs->pairing);
+    element_set(cs->hs[i], cs->g_Gp);
     element_random(power);
-    element_pow_zn(cs[0].hs[i], cs[0].hs[i], power);
+    element_pow_zn(cs->hs[i], cs->hs[i], power);
 
-    element_init_G1(cs[0].hs[i+1], cs[0].pairing);
-    element_set(cs[0].hs[i+1], cs[0].g_Gp);
+    element_init_G1(cs->hs[i+1], cs->pairing);
+    element_set(cs->hs[i+1], cs->g_Gp);
     element_random(power);
-    element_pow_zn(cs[0].hs[i+1], cs[0].hs[i+1], power);
+    element_pow_zn(cs->hs[i+1], cs->hs[i+1], power);
 
-    element_init_G1(cs[0].us[i], cs[0].pairing);
-    element_set(cs[0].us[i], cs[0].g_Gp);
+    element_init_G1(cs->us[i], cs->pairing);
+    element_set(cs->us[i], cs->g_Gp);
     element_random(power);
-    element_pow_zn(cs[0].us[i], cs[0].us[i], power);
+    element_pow_zn(cs->us[i], cs->us[i], power);
 
-    element_init_G1(cs[0].us[i+1], cs[0].pairing);
-    element_set(cs[0].us[i+1], cs[0].g_Gp);
+    element_init_G1(cs->us[i+1], cs->pairing);
+    element_set(cs->us[i+1], cs->g_Gp);
     element_random(power);
-    element_pow_zn(cs[0].us[i+1], cs[0].us[i+1], power);
+    element_pow_zn(cs->us[i+1], cs->us[i+1], power);
   }
   done();
 
   fprintf(stderr, "- Picking gamma:");
   fflush(NULL);
-  element_init_Zr(gamma, cs[0].pairing);
-  element_set(gamma, cs[0].g_Gp);
+  element_init_Zr(gamma, cs->pairing);
+  element_set(gamma, cs->g_Gp);
   element_random(power);
   element_pow_zn(gamma, gamma, power);
   done();
 
   fprintf(stderr, "- Picking h:");
   fflush(NULL);
-  element_init_G1(h, cs[0].pairing);
-  element_set(h, cs[0].g_Gp);
+  element_init_G1(h, cs->pairing);
+  element_set(h, cs->g_Gp);
   element_random(power);
   element_pow_zn(h, h, power);
   done();
 
   fprintf(stderr, "- Computing P:");
   fflush(NULL);
-  element_init_GT(cs[0].P, cs[0].pairing);
-  pairing_apply(cs[0].P, cs[0].g_Gp, h, cs[0].pairing);
-  element_pow_zn(cs[0].P, cs[0].P, gamma);
+  element_init_GT(cs->P, cs->pairing);
+  pairing_apply(cs->P, cs->g_Gp, h, cs->pairing);
+  element_pow_zn(cs->P, cs->P, gamma);
   done();
 
   fprintf(stderr, "- Computing h^(-gamma):");
   fflush(NULL);
-  element_init_G1(cs[0].h_neg_gamma, cs[0].pairing);
-  element_neg(cs[0].h_neg_gamma, gamma);
-  element_pow_zn(cs[0].h_neg_gamma, h, cs[0].h_neg_gamma);
+  element_init_G1(cs->h_neg_gamma, cs->pairing);
+  element_neg(cs->h_neg_gamma, gamma);
+  element_pow_zn(cs->h_neg_gamma, h, cs->h_neg_gamma);
   done();
 
   fprintf(stderr, "- Computing GT generator:");
   fflush(NULL);
-  element_init_GT(cs[0].g_GT, cs[0].pairing);
-  pairing_apply(cs[0].g_GT, cs[0].g_Gp, cs[0].g_Gp, cs[0].pairing);
+  element_init_GT(cs->g_GT, cs->pairing);
+  pairing_apply(cs->g_GT, cs->g_Gp, cs->g_Gp, cs->pairing);
   done();
 
   fprintf(stderr, "- Cleaning up:");
@@ -198,28 +197,28 @@ int cryptosystem_init(cryptosystem_t cs, size_t order, size_t dimensions) {
 
 int cryptosystem_clear(cryptosystem_t cs) {
   int i;
-  for (i = 0; i < cs[0].dimensions * 2; i += 2) {
-    element_clear(cs[0].hs[i]);
-    element_clear(cs[0].hs[i+1]);
-    element_clear(cs[0].us[i]);
-    element_clear(cs[0].us[i+1]);
+
+  for (i = 0; i < cs->dimensions * 2; i += 2) {
+    element_clear(cs->hs[i]);
+    element_clear(cs->hs[i+1]);
+    element_clear(cs->us[i]);
+    element_clear(cs->us[i+1]);
   }
-  free(cs[0].hs);
-  free(cs[0].us);
+  free(cs->hs);
+  free(cs->us);
   
-  element_clear(cs[0].h_neg_gamma);
-  element_clear(cs[0].P);
+  element_clear(cs->h_neg_gamma);
+  element_clear(cs->P);
 
-  element_clear(cs[0].g_Gp);
-  element_clear(cs[0].g_Gq);
-  element_clear(cs[0].g_Gr);
-  element_clear(cs[0].g_Gs);
+  element_clear(cs->g_Gp);
+  element_clear(cs->g_Gq);
+  element_clear(cs->g_Gr);
+  element_clear(cs->g_Gs);
 
-  element_clear(cs[0].g_GT);
-  // g_GT
+  element_clear(cs->g_GT);
 
-  pbc_param_clear(cs[0].param);
-  pairing_clear(cs[0].pairing);
+  pbc_param_clear(cs->param);
+  pairing_clear(cs->pairing);
 
   return 0;
 }

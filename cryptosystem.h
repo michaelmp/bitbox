@@ -1,5 +1,5 @@
-#ifndef BB_CRYPTOSYSTEM_H
-#define BB_CRYPTOSYSTEM_H
+#ifndef BB_CRYPTOSYSTEM_H_
+#define BB_CRYPTOSYSTEM_H_
 
 #include <pbc.h>
 
@@ -30,4 +30,4 @@ int encrypt(char**, char*, cryptosystem_t);
 //int decrypt(cryptosystem_t*, char*, char**);
 //int generate_token(cryptosystem_t*, element_t*);
 
-#endif // BB_CRYPTOSYSTEM_H
+#endif // BB_CRYPTOSYSTEM_H_
