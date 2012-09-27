@@ -1,4 +1,11 @@
 bitbox
 ======
 
-Hidden vector encryption utility
+A hidden vector encryption utility.
+
+Usage:
+
+```shell
+$ make
+$ ./bitbox init
+```
