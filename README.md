@@ -5,7 +5,7 @@ A hidden vector encryption utility.
 
 Goals:
 
-* Good performance | find ways to improve speed.
+* Good performance. Find ways to improve speed.
 * Decentralized access control.
 * Simple command-line API.
 
