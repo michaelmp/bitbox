@@ -16,4 +16,11 @@ $ make
 $ ./bitbox init
 ```
 
+Requirements:
+
+Bitbox uses the GNU Multiple Precision library, as well as the Pairing Based Cryptography library.
+
+* http://gmplib.org/
+* http://crypto.stanford.edu/pbc/
+
 _Warning_: This project is experimental encryption. Use at your own risk!
